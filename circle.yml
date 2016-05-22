@@ -18,6 +18,7 @@ dependencies:
     - mkdir -p "$GOPATH_BASE"
     - mkdir -p "$GOPATH_HEAD/bin"
     - ln -fs ${HOME}/${CIRCLE_PROJECT_REPONAME} ${GOPATH_BASE}/
+    - env
 
 test:
   override:
