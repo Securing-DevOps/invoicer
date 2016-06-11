@@ -17,6 +17,7 @@ dependencies:
     - mkdir -p "$GOPATH_BASE"
     - mkdir -p "$GOPATH_HEAD/bin"
     - ln -fs ${HOME}/${CIRCLE_PROJECT_REPONAME} ${GOPATH_BASE}/
+    - ssh -o "StrictHostKeyChecking no" -o ConnectTimeout=10 -T git@github.com
 
 test:
   override:
