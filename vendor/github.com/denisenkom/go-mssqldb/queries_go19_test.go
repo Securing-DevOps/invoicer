@@ -8,16 +8,19 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"regexp"
 )
 
 func TestOutputParam(t *testing.T) {
 	sqltextcreate := `
 CREATE PROCEDURE abassign
-   @aid INT,
-   @bid INT OUTPUT
+   @aid INT = 5,
+   @bid INT = NULL OUTPUT,
+   @cstr NVARCHAR(2000) = NULL OUTPUT,
+   @datetime datetime = NULL OUTPUT
 AS
 BEGIN
-   SELECT @bid = @aid
+   SELECT @bid = @aid, @cstr = 'OK', @datetime = '2010-01-01T00:00:00';
 END;
 `
 	sqltextdrop := `DROP PROCEDURE abassign;`
@@ -40,29 +43,170 @@ END;
 	if err != nil {
 		t.Fatal(err)
 	}
-	var bout int64
-	_, err = db.ExecContext(ctx, sqltextrun,
-		sql.Named("aid", 5),
-		sql.Named("bid", sql.Out{Dest: &bout}),
-	)
 	defer db.ExecContext(ctx, sqltextdrop)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if bout != 5 {
-		t.Errorf("expected 5, got %d", bout)
-	}
+	t.Run("should work", func(t *testing.T) {
+		var bout int64
+		var cout string
+		_, err = db.ExecContext(ctx, sqltextrun,
+			sql.Named("aid", 5),
+			sql.Named("bid", sql.Out{Dest: &bout}),
+			sql.Named("cstr", sql.Out{Dest: &cout}),
+		)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if bout != 5 {
+			t.Errorf("expected 5, got %d", bout)
+		}
+
+		if cout != "OK" {
+			t.Errorf("expected OK, got %s", cout)
+		}
+	})
+
+	t.Run("should work if aid is not passed", func(t *testing.T) {
+		var bout int64
+		var cout string
+		_, err = db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: &bout}),
+			sql.Named("cstr", sql.Out{Dest: &cout}),
+		)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if bout != 5 {
+			t.Errorf("expected 5, got %d", bout)
+		}
+
+		if cout != "OK" {
+			t.Errorf("expected OK, got %s", cout)
+		}
+	})
+
+	t.Run("should work for DateTime1 parameter", func(t *testing.T) {
+		tin, err := time.Parse(time.RFC3339, "2006-01-02T22:04:05-07:00")
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected, err := time.Parse(time.RFC3339, "2010-01-01T00:00:00-00:00")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var datetime_param DateTime1
+		datetime_param = DateTime1(tin)
+		_, err = db.ExecContext(ctx, sqltextrun,
+			sql.Named("datetime", sql.Out{Dest: &datetime_param}),
+		)
+		if err != nil {
+			t.Error(err)
+		}
+		if time.Time(datetime_param).UTC() != expected.UTC() {
+			t.Errorf("Datetime returned '%v' does not match expected value '%v'",
+				time.Time(datetime_param).UTC(), expected.UTC())
+		}
+	})
+
+	t.Run("destination is not a pointer", func(t *testing.T) {
+		var int_out int64
+		var str_out string
+		// test when destination is not a pointer
+		_, actual := db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: int_out}),
+			sql.Named("cstr", sql.Out{Dest: &str_out}),
+		)
+		pattern := ".*destination not a pointer.*"
+		match, err := regexp.MatchString(pattern, actual.Error())
+		if err != nil {
+			t.Error(err)
+		}
+		if !match {
+			t.Errorf("Error  '%v', does not match pattern '%v'.", actual, pattern)
+		}
+	})
+
+	t.Run("should convert int64 to int", func(t *testing.T) {
+		var bout int
+		var cout string
+		_, err := db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: &bout}),
+			sql.Named("cstr", sql.Out{Dest: &cout}),
+		)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if bout != 5 {
+			t.Errorf("expected 5, got %d", bout)
+		}
+	})
+
+	t.Run("should fail if destination has invalid type", func(t *testing.T) {
+		// Error type should not be supported
+		var err_out Error
+		_, err := db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: &err_out}),
+		)
+		if err == nil {
+			t.Error("Expected to fail but it didn't")
+		}
+
+		// double inderection should not work
+		var out_out = sql.Out{Dest: &err_out}
+		_, err = db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: out_out}),
+		)
+		if err == nil {
+			t.Error("Expected to fail but it didn't")
+		}
+	})
+
+	t.Run("should fail if parameter has invalid type", func(t *testing.T) {
+		// passing invalid parameter type
+		var err_val Error
+		_, err = db.ExecContext(ctx, sqltextrun, err_val)
+		if err == nil {
+			t.Error("Expected to fail but it didn't")
+		}
+	})
+
+	t.Run("destination is a nil pointer", func(t *testing.T) {
+		var str_out string
+		// test when destination is nil pointer
+		_, actual := db.ExecContext(ctx, sqltextrun,
+			sql.Named("bid", sql.Out{Dest: nil}),
+			sql.Named("cstr", sql.Out{Dest: &str_out}),
+		)
+		pattern := ".*destination is a nil pointer.*"
+		match, err := regexp.MatchString(pattern, actual.Error())
+		if err != nil {
+			t.Error(err)
+		}
+		if !match {
+			t.Errorf("Error  '%v', does not match pattern '%v'.", actual, pattern)
+		}
+	})
 }
 
 func TestOutputINOUTParam(t *testing.T) {
 	sqltextcreate := `
 CREATE PROCEDURE abinout
    @aid INT,
-   @bid INT OUTPUT
+   @bid INT OUTPUT,
+   @cstr NVARCHAR(2000) OUTPUT,
+   @vout VARCHAR(2000) OUTPUT
 AS
 BEGIN
-   SELECT @bid = @aid + @bid;
+   SELECT
+		@bid = @aid + @bid,
+		@cstr = 'OK',
+		@Vout = 'DREAM'
+	;
 END;
 `
 	sqltextdrop := `DROP PROCEDURE abinout;`
@@ -86,9 +230,13 @@ END;
 		t.Fatal(err)
 	}
 	var bout int64 = 3
+	var cout string
+	var vout VarChar
 	_, err = db.ExecContext(ctx, sqltextrun,
 		sql.Named("aid", 5),
 		sql.Named("bid", sql.Out{Dest: &bout}),
+		sql.Named("cstr", sql.Out{Dest: &cout}),
+		sql.Named("vout", sql.Out{Dest: &vout}),
 	)
 	defer db.ExecContext(ctx, sqltextdrop)
 	if err != nil {
@@ -97,6 +245,13 @@ END;
 
 	if bout != 8 {
 		t.Errorf("expected 8, got %d", bout)
+	}
+
+	if cout != "OK" {
+		t.Errorf("expected OK, got %s", cout)
+	}
+	if string(vout) != "DREAM" {
+		t.Errorf("expected DREAM, got %s", vout)
 	}
 }
 
@@ -329,6 +484,7 @@ with
                     ) X(a))
     select * from config_cte
 	`
+	t.Logf("query len (utf16 bytes)=%d, len/4096=%f\n", len(query)*2, float64(len(query)*2)/4096)
 
 	db := open(t)
 	defer db.Close()
@@ -347,7 +503,7 @@ with
 	// Use separate Conns from the connection pool to ensure separation.
 	runs := []*run{
 		{name: "rev", pings: []int{4, 1}, pass: true},
-		{name: "forward", pings: []int{1}, pass: false},
+		{name: "forward", pings: []int{1}, pass: true},
 	}
 	for _, r := range runs {
 		var err error
@@ -375,9 +531,9 @@ with
 				rows, err := r.conn.QueryContext(ctx, query)
 				if err != nil {
 					if r.pass {
-						t.Error("QueryContext", len(query), err)
+						t.Errorf("QueryContext: %+v", err)
 					} else {
-						t.Log("QueryContext", len(query), err)
+						t.Logf("QueryContext: %+v", err)
 					}
 					return
 				}
@@ -387,5 +543,40 @@ with
 				rows.Close()
 			})
 		}
+	}
+}
+
+func TestDateTimeParam19(t *testing.T) {
+	conn := open(t)
+	defer conn.Close()
+
+	// testing DateTime1, only supported on go 1.9
+	var emptydate time.Time
+	mindate1 := time.Date(1753, 1, 1, 0, 0, 0, 0, time.UTC)
+	maxdate1 := time.Date(9999, 12, 31, 23, 59, 59, 997000000, time.UTC)
+	testdates1 := []DateTime1{
+		DateTime1(mindate1),
+		DateTime1(maxdate1),
+		DateTime1(time.Date(1752, 12, 31, 23, 59, 59, 997000000, time.UTC)), // just a little below minimum date
+		DateTime1(time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC)), // just a little over maximum date
+		DateTime1(emptydate),
+	}
+
+	for _, test := range testdates1 {
+		t.Run(fmt.Sprintf("Test datetime for %v", test), func (t *testing.T) {
+			var res time.Time
+			expected := time.Time(test)
+			queryParamRoundTrip(conn, test, &res)
+			// clip value
+			if expected.Before(mindate1) {
+				expected = mindate1
+			}
+			if expected.After(maxdate1) {
+				expected = maxdate1
+			}
+			if expected.Sub(res) != 0 {
+				t.Errorf("expected: '%s', got: '%s' delta: %d", expected, res, expected.Sub(res))
+			}
+		})
 	}
 }
