@@ -6,9 +6,6 @@ jobs:
     working_directory: /go/src/github.com/Securing-DevOps/invoicer
     docker:
       - image: circleci/golang:1.8
-    branches:
-      only:
-        - master
     steps:
       - checkout
       - setup_remote_docker
