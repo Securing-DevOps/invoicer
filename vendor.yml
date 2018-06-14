@@ -1,12 +1,4 @@
 vendors:
-- path: github.com/davecgh/go-spew
-  rev: a476722483882dd40b8111f0eb64e1d7f43f56e4
-- path: github.com/denisenkom/go-mssqldb
-  rev: c7ee4153c0fc40206bde939f96eefa1f501cbcaa
-- path: github.com/erikstmartin/go-testdb
-  rev: 8d10e4a1bae52cd8b81ffdec3445890d6dccab3d
-- path: github.com/go-sql-driver/mysql
-  rev: 7785c74297136c027fdf2fd6f8931c0e19be8aa7
 - path: github.com/golang/protobuf
   rev: 5831880292e721c76b58a16ecc60adc27d8e6355
 - path: github.com/gorilla/context
@@ -21,27 +13,17 @@ vendors:
   rev: 82eb9f8a5bbb5e6b929d2f0ae5b934e6a253f94e
 - path: github.com/jinzhu/inflection
   rev: 04140366298a54a039076d798123ffa108fff46c
-- path: github.com/jinzhu/now
-  rev: d939ba741945c047cac69c329c5fb0d6b4a06520
 - path: github.com/lib/pq
   rev: 90697d60dd844d5ef6ff15135d0203f65d2f53b8
 - path: github.com/mattn/go-sqlite3
   rev: 25ecb14adfc7543176f7d85291ec7dba82c6f7e4
-- path: github.com/pmezard/go-difflib
-  rev: 792786c7400a136282c1664665ae0a8db921c6c2
-- path: github.com/stretchr/testify
-  rev: 890a5c3458b43e6104ff5da8dfa139d013d77544
 - path: github.com/wader/gormstore
   rev: e3293a80ecfe307cf4e1deeb54e6a998dc1d28cd
 - path: go.mozilla.org/mozlog
   rev: 4bb13139d40339f59bf140d0f5f28be83b07cc58
-- path: golang.org/x/crypto
-  rev: 76eec36fa14229c4b25bb894c2d0e591527af429
 - path: golang.org/x/net
   rev: db08ff08e8622530d9ed3a0e8ac279f6d4c02196
 - path: golang.org/x/oauth2
   rev: 1e0a3fa8ba9a5c9eb35c271780101fdaf1b205d7
-- path: golang.org/x/sync
-  rev: 8e0aa688b654ef28caa72506fa5ec8dba9fc7690
 - path: google.golang.org/appengine
   rev: b1f26356af11148e710935ed1ac8a7f5702c7612
