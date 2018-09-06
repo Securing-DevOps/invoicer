@@ -1,5 +1,5 @@
 {
-  "AWSEBDockerrunVersion": "1",
+  "AWSEBDockerrunVersion": "2",
   "Image": {
     "Name": "docker.io/securingdevops/invoicer",
     "Update": "true"
