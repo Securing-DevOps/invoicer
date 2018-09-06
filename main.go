@@ -62,7 +62,7 @@ func main() {
 		db, err = gorm.Open("sqlite3", "invoicer.db")
 	}
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatalf("failed to connect database: %v", err)
 	}
 
 	// initialize the session store
