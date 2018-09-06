@@ -1,29 +1,29 @@
 vendors:
 - path: github.com/golang/protobuf
-  rev: 5831880292e721c76b58a16ecc60adc27d8e6355
+  rev: b27b920f9e71b439b873b17bf99f56467623814a
 - path: github.com/gorilla/context
   rev: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - path: github.com/gorilla/mux
-  rev: cb4698366aa625048f3b815af6a0dea8aef9280a
+  rev: 9e1f5955c0d22b55d9e20d6faa28589f83b2faca
 - path: github.com/gorilla/securecookie
-  rev: 78f3d318a8bf316cda921f25e96fd0b441c5173d
+  rev: 3a8eb0de07814569f0bdadffc60dda1668de90bd
 - path: github.com/gorilla/sessions
-  rev: 03b6f63cc43ef9c7240a635a5e22b13180e822b8
+  rev: 81547393f870a35be888759a606ba7bf71dbe5c7
 - path: github.com/jinzhu/gorm
-  rev: 82eb9f8a5bbb5e6b929d2f0ae5b934e6a253f94e
+  rev: 32455088f24d6b1e9a502fb8e40fdc16139dbea8
 - path: github.com/jinzhu/inflection
   rev: 04140366298a54a039076d798123ffa108fff46c
 - path: github.com/lib/pq
-  rev: 90697d60dd844d5ef6ff15135d0203f65d2f53b8
+  rev: 4ded0e9383f75c197b3a2aaa6d590ac52df6fd79
 - path: github.com/mattn/go-sqlite3
-  rev: 25ecb14adfc7543176f7d85291ec7dba82c6f7e4
+  rev: 3198c7714d5f8be941dd06c30208e623aa5abf90
 - path: github.com/wader/gormstore
   rev: e3293a80ecfe307cf4e1deeb54e6a998dc1d28cd
 - path: go.mozilla.org/mozlog
   rev: 4bb13139d40339f59bf140d0f5f28be83b07cc58
 - path: golang.org/x/net
-  rev: db08ff08e8622530d9ed3a0e8ac279f6d4c02196
+  rev: 8a410e7b638dca158bf9e766925842f6651ff828
 - path: golang.org/x/oauth2
-  rev: 1e0a3fa8ba9a5c9eb35c271780101fdaf1b205d7
+  rev: d2e6202438beef2727060aa7cabdd924d92ebfd9
 - path: google.golang.org/appengine
-  rev: b1f26356af11148e710935ed1ac8a7f5702c7612
+  rev: 03cac3b07182cfb08c0d0c0b6ee72a1ceb151c92
