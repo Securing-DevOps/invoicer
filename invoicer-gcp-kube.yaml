@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: invoicer
+  labels:
+    app: invoicer
+    tier: frontend
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: invoicer
+        tier: frontend
+    spec:
+      containers:
+      - name: invoicer-app
+        image: securingdevops/invoicer:latest
+        command: ["/app/invoicer"]
+        imagePullPolicy: Always
+        ports:
+        - name: http-server
+          containerPort: 8080
+        env:
+          - name: INVOICER_USE_POSTGRES
+            value: "true"
+          - name: INVOICER_POSTGRES_HOST
+            value: "127.0.0.1:5432"
+          - name: INVOICER_POSTGRES_DB
+            value: "invoicer"
+          - name: INVOICER_POSTGRES_SSLMODE
+            value: "disable"
+          - name: INVOICER_POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: cloudsql-db-credentials
+                key: username
+          - name: INVOICER_POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cloudsql-db-credentials
+                key: password
+
+      # cloudsql to access the postgres database
+      - image: b.gcr.io/cloudsql-docker/gce-proxy:1.11
+        name: cloudsql-proxy
+        command: ["/cloud_sql_proxy",
+                  "-instances=ulfr-test20180906:us-east1:invoicerdb=tcp:5432",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+        securityContext:
+            runAsUser: 2  # non-root user
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
