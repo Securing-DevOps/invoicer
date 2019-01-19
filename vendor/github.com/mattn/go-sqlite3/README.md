@@ -10,9 +10,7 @@ go-sqlite3
 
 sqlite3 driver conforming to the built-in database/sql interface
 
-Supported Golang version:
-- 1.9.x
-- 1.10.x
+Supported Golang version: See .travis.yml
 
 [This package follows the official Golang Release Policy.](https://golang.org/doc/devel/release.html#policy)
 
@@ -67,6 +65,7 @@ This is also known as a DSN string. (Data Source Name).
 
 Options are append after the filename of the SQLite database.
 The database filename and options are seperated by an `?` (Question Mark).
+Options should be URL-encoded (see [url.QueryEscape](https://golang.org/pkg/net/url/#QueryEscape)).
 
 This also applies when using an in-memory database instead of a file.
 
@@ -198,7 +197,7 @@ Additional information:
 
 # Google Cloud Platform
 
-Building on GCP is not possible because `Google Cloud Platform does not allow `gcc` to be executed.
+Building on GCP is not possible because Google Cloud Platform does not allow `gcc` to be executed.
 
 Please work only with compiled final binaries.
 
@@ -281,7 +280,7 @@ To compile this package on Windows OS you must have the `gcc` compiler installed
 3) Open a terminal for the TDM-GCC toolchain, can be found in the Windows Start menu.
 4) Navigate to your project folder and run the `go build ...` command for this package.
 
-For example the TDM-GCC Toolchain can be found [here](ttps://sourceforge.net/projects/tdm-gcc/).
+For example the TDM-GCC Toolchain can be found [here](https://sourceforge.net/projects/tdm-gcc/).
 
 ## Errors
 
@@ -290,7 +289,7 @@ For example the TDM-GCC Toolchain can be found [here](ttps://sourceforge.net/pro
     When receiving a compile time error referencing recompile with `-FPIC` then you
     are probably using a hardend system.
 
-    You can copile the library on a hardend system with the following command.
+    You can compile the library on a hardend system with the following command.
 
     ```bash
     go build -ldflags '-extldflags=-fno-PIC'
@@ -484,7 +483,7 @@ For an example see [shaxbee/go-spatialite](https://github.com/shaxbee/go-spatial
 
 - Error: `database is locked`
 
-    When you get an database is locked. Please use the following options.
+    When you get a database is locked. Please use the following options.
 
     Add to DSN: `cache=shared`
 
