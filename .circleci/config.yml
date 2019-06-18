@@ -1,60 +1,26 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
   build:
-    # Variable expansion in working_directory not supported at this time
-    # You will need to modify the code below to reflect your github account/repo setup
-    working_directory: /go/src/github.com/Consult2016/invoicer
     docker:
-      - image: circleci/golang:1.11
-    branches:
-      only:
-        - master
+      # specify the version
+      - image: circleci/golang:1.9
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/Consult2016/invoicer
     steps:
       - checkout
-      - setup_remote_docker
 
-      - run: echo 'export GOPATH_HEAD="$(echo ${GOPATH}|cut -d ':' -f 1)"' >> $BASH_ENV
-      - run: echo 'export GOPATH_BASE="${GOPATH_HEAD}/src/github.com/${CIRCLE_PROJECT_USERNAME}"' >> $BASH_ENV
-      - run: echo 'export DOCKER_REPO="$(if [ ${CIRCLE_PROJECT_USERNAME} == 'Securing-DevOps' ]; then echo securingdevops; else echo $DOCKER_USER; fi)"' >> $BASH_ENV
-      - run: mkdir -p "${GOPATH_BASE}"
-      - run: mkdir -p "${GOPATH_HEAD}/bin"
-      - run: go get github.com/govend/govend
-
-      - run:
-          name: Build application container
-          command: |
-            go install --ldflags '-extldflags "-static"' github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME};
-            [ ! -e bin ] && mkdir bin;
-            cp "${GOPATH_HEAD}/bin/${CIRCLE_PROJECT_REPONAME}" bin/invoicer;
-            docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
-
-      - run:
-          name: Run application in background
-          command: |
-            docker run ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME}
-          background: true
-
-      - run:
-          name: ZAP baseline test of application
-          # Only fail on error code 1, which indicates at least one FAIL was found.
-          # error codes 2 & 3 indicate WARN or other, and should not break the run
-          command: |
-            (
-            docker pull owasp/zap2docker-weekly && \
-            docker run -t owasp/zap2docker-weekly zap-baseline.py \
-                -u https://raw.githubusercontent.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
-                -t http://172.17.0.2:8080/ || \
-            if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-            )
-
-      - run:
-          name: Test dependencies are up to date
-          command: 'GOPATH="${GOPATH_HEAD}"; ( cd ${GOPATH_BASE}/${CIRCLE_PROJECT_REPONAME} && govend -u --prune && git diff --quiet )'
-
-      - deploy:
-          # Push application container to dockerhub
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-                docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-                docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME};
-            fi
+      # specify any bash command here prefixed with `run: `
+      - run: go get -v -t -d ./...
+      - run: go test -v ./...
