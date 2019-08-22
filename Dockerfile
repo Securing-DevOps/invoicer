@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.12-buster
 RUN addgroup --gid 10001 app
 RUN adduser --gid 10001 --uid 10001 \
     --home /app --shell /sbin/nologin \
@@ -7,8 +7,10 @@ RUN adduser --gid 10001 --uid 10001 \
 RUN mkdir /app/statics/
 ADD statics /app/statics/
 
-COPY bin/invoicer /app/invoicer
+ADD . /go/src/github.com/Securing-DevOps/invoicer
+RUN go install github.com/Securing-DevOps/invoicer
+
 USER app
 EXPOSE 8080
 WORKDIR /app
-ENTRYPOINT /app/invoicer
+ENTRYPOINT /go/bin/invoicer
