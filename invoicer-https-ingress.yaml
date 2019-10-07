@@ -1,0 +1,10 @@
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: invoicer-https-ingress
+spec:
+  tls:
+  - secretName: invoicer-tls
+  backend:
+    serviceName: invoicer
+    servicePort: 8080
