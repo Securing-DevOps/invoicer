@@ -27,7 +27,6 @@ jobs:
             [ ! -e bin ] && mkdir bin;
             cp "${GOPATH_HEAD}/bin/${CIRCLE_PROJECT_REPONAME}" bin/invoicer;
             docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
-
       - run:
           name: Run application in background
           command: |
@@ -46,7 +45,6 @@ jobs:
                 -t http://172.17.0.2:8080/ || \
             if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
             )
-
       - run:
           name: Test dependencies are up to date
           command: 'GOPATH="${GOPATH_HEAD}"; ( cd ${GOPATH_BASE}/${CIRCLE_PROJECT_REPONAME} && govend -u --prune && git diff --quiet )'
