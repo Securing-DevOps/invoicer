@@ -27,6 +27,7 @@ would become:
     working_directory: /go/src/github.com/jvehent/invoicer
 ```
 
+Done!!!!! Whoop Whoop!
 Then, sign up for circleci and build the project. The build will initially fail
 because it lacks the Docker credentials to push the invoicer's image to
 dockerhub.
